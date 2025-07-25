@@ -17,33 +17,46 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useAuthStore } from "@/store/useAuthUserStore";
+import { useRouter } from "next/navigation";
+import { registerUser } from "@/lib/api/registerUser";
 
 const formSchema = z.object({
   username: z
     .string()
     .min(2, "Імʼя користувача має містити щонайменше 2 символи")
-    .max(50, "Імʼя користувача не може бути довше за 10 символів"),
+    .max(20, "Імʼя користувача не може бути довше за 20 символів"),
+  email: z.email("Неправильний формат email"),
   password: z
     .string()
     .min(8, "Пароль має містити щонайменше 8 символів")
     .regex(/[A-Z]/, "Пароль має містити хоча б одну велику літеру")
     .regex(/[a-z]/, "Пароль має містити хоча б одну малу літеру")
-    .regex(/[0-9]/, "Пароль має містити хоча б одну цифру")
-    .regex(/[^A-Za-z0-9]/, "Пароль має містити хоча б один спеціальний символ"),
+    .regex(/[0-9]/, "Пароль має містити хоча б одну цифру"),
 });
 
-export default function AuthForm() {
+export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const { setUser, setHasAccount } = useAuthStore();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
+      email: "",
       password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const user = await registerUser(values);
+      alert("Registration successful");
+      setUser(user);
+      router.push("/posts");
+    } catch {
+      form.setError("username", { message: "Щось пішло не так" });
+    }
   }
 
   return (
@@ -64,6 +77,19 @@ export default function AuthForm() {
               <FormDescription>
                 This is your public display name.
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>E-mail</FormLabel>
+              <FormControl>
+                <Input placeholder="john.doe@gmail.com" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -101,11 +127,20 @@ export default function AuthForm() {
             type="submit"
             className="bg-[var(--selection)] hover:bg-blue-900"
           >
-            Submit
+            Sign up
           </Button>
           <Button type="button" variant="outline" onClick={() => form.reset()}>
             Clear
           </Button>
+        </div>
+        <div className="text-center mt-4 text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <button
+            onClick={() => setHasAccount(true)}
+            className="text-blue-600 hover:underline"
+          >
+            Log in
+          </button>
         </div>
       </form>
     </Form>

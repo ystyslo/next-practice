@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LogOut } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthUserStore";
 
 const formSchema = z.object({
   title: z
@@ -29,6 +30,7 @@ const formSchema = z.object({
 });
 
 export default function CreatePostForm({ username = "John Doe" }) {
+  const { user, clearUser } = useAuthStore();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,7 +59,7 @@ export default function CreatePostForm({ username = "John Doe" }) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => console.log("Logout clicked")}
+              onClick={() => clearUser()}
               className="text-muted-foreground hover:text-foreground"
             >
               <LogOut className="w-4 h-4 mr-1" />
@@ -76,10 +78,12 @@ export default function CreatePostForm({ username = "John Doe" }) {
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
               <span className="text-sm font-semibold text-white">
-                {username.charAt(0)}
+                {user?.username.charAt(0)}
               </span>
             </div>
-            <span className="text-foreground font-medium">{username}</span>
+            <span className="text-foreground font-medium">
+              {user?.username}
+            </span>
           </div>
         </div>
 
