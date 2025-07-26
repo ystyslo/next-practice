@@ -3,9 +3,14 @@ import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: number } }
+  context: { params: { id: string | string[] } }
 ) {
-  const { id } = params;
+  const { id } = context.params;
+
+  if (Array.isArray(id)) {
+    return NextResponse.json({ message: "Invalid post ID" }, { status: 400 });
+  }
+
   const body = await req.json();
   const { title, description } = body;
 
@@ -16,14 +21,12 @@ export async function PATCH(
   try {
     const updatedPost = await prisma.post.update({
       where: { id },
-      data: {
-        title,
-        description,
-      },
+      data: { title, description },
     });
 
     return NextResponse.json(updatedPost);
-  } catch {
+  } catch (error) {
+    console.error("Update post error:", error);
     return NextResponse.json(
       { message: "Post not found or update failed" },
       { status: 500 }
