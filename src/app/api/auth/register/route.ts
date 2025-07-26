@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       password.length < 6 ||
       !email.includes("@")
     ) {
-      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+      return NextResponse.json({ message: "Invalid input" }, { status: 400 });
     }
 
     const existingUserByUsername = await prisma.user.findUnique({
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     });
     if (existingUserByUsername) {
       return NextResponse.json(
-        { error: "Username already taken" },
+        { field: "username", message: "Username already taken" },
         { status: 409 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     });
     if (existingUserByEmail) {
       return NextResponse.json(
-        { error: "Email already registered" },
+        { field: "email", message: "Email already registered" },
         { status: 409 }
       );
     }
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { message: "Internal Server Error" },
       { status: 500 }
     );
   }

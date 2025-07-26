@@ -1,11 +1,10 @@
 export interface Post {
-  id: number;
+  id: string;
   title: string;
   description: string;
   author: string;
-  timeAgo: string;
+  authorId: number;
+  createdAt: Date;
   likes: number;
   comments: number;
-  imageUrl: string;
-  isVerified: boolean;
 }

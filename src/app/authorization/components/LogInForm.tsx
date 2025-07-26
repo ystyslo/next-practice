@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/store/useAuthUserStore";
 import { useRouter } from "next/navigation";
-import { loginUser } from "@/lib/api/logInUser";
+import { loginUser } from "@/lib/services/userAPI";
 
 const formSchema = z.object({
   email: z.email("Введіть коректний email"),
@@ -49,7 +49,7 @@ export default function LogInForm() {
       setUser(user);
       router.push("/posts");
     } catch {
-      form.setError("email", { message: "Невірний email або пароль" });
+      form.setError("email", { message: "Incorrect e-mail or password" });
     }
   }
 
@@ -57,7 +57,7 @@ export default function LogInForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 w-92 bg-muted rounded-xl p-6 shadow-md"
+        className="space-y-8 w-92 bg-white/80 rounded-xl p-6 shadow-md"
       >
         <FormField
           control={form.control}

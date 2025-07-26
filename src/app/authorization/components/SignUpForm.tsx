@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/store/useAuthUserStore";
 import { useRouter } from "next/navigation";
-import { registerUser } from "@/lib/api/registerUser";
+import { registerUser } from "@/lib/services/userAPI";
 
 const formSchema = z.object({
   username: z
@@ -54,8 +54,22 @@ export default function SignUpForm() {
       alert("Registration successful");
       setUser(user);
       router.push("/posts");
-    } catch {
-      form.setError("username", { message: "Щось пішло не так" });
+    } catch (err) {
+      if (
+        err &&
+        typeof err === "object" &&
+        "field" in err &&
+        "message" in err
+      ) {
+        form.setError(
+          (err as { field: "username" | "email"; message: string }).field,
+          { message: (err as { message: string }).message }
+        );
+      } else if (err instanceof Error) {
+        form.setError("username", { message: err.message });
+      } else {
+        form.setError("username", { message: "Щось пішло не так" });
+      }
     }
   }
 
@@ -63,7 +77,7 @@ export default function SignUpForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 w-92 bg-muted rounded-xl p-6 shadow-md"
+        className="space-y-8 w-92 bg-white/80 rounded-xl p-6 shadow-md"
       >
         <FormField
           control={form.control}

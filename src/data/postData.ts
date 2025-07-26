@@ -5,7 +5,7 @@ export const postsData = [
     description:
       "The environmental pros and cons of Christmas trees go far beyond the...",
     author: "Rey",
-    timeAgo: "12h ago",
+    createdAt: "2025-07-26T10:23:45.123Z",
     likes: 41,
     comments: 21,
     imageUrl:
@@ -18,7 +18,7 @@ export const postsData = [
     description:
       "Machine learning algorithms are transforming diagnostic accuracy and patient care across medical specialties...",
     author: "Dr. Sarah Chen",
-    timeAgo: "8h ago",
+    createdAt: "2025-07-26T10:23:45.123Z",
     likes: 127,
     comments: 34,
     imageUrl:
@@ -31,7 +31,7 @@ export const postsData = [
     description:
       "New research reveals surprising insights about remote work effectiveness and employee satisfaction levels...",
     author: "Mike Johnson",
-    timeAgo: "1d ago",
+    createdAt: "2025-07-26T10:23:45.123Z",
     likes: 89,
     comments: 56,
     imageUrl:
@@ -44,11 +44,9 @@ export const postsData = [
     description:
       "Scientists demonstrate quantum advantage in solving complex optimization problems faster than classical computers...",
     author: "Prof. Alice Kumar",
-    timeAgo: "2d ago",
+    createdAt: "2025-07-26T10:23:45.123Z",
     likes: 203,
     comments: 78,
-    imageUrl:
-      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=200&fit=crop&crop=center",
     isVerified: true,
   },
   {
@@ -57,7 +55,7 @@ export const postsData = [
     description:
       "Innovative materials and circular economy principles are reshaping how we think about clothing production...",
     author: "Emma Rodriguez",
-    timeAgo: "3d ago",
+    createdAt: "2025-07-26T10:23:45.123Z",
     likes: 156,
     comments: 42,
     imageUrl:
@@ -70,7 +68,7 @@ export const postsData = [
     description:
       "Private companies are making space more accessible while pushing the boundaries of human exploration...",
     author: "Captain Nova",
-    timeAgo: "4d ago",
+    createdAt: "2025-07-23T10:23:45.123Z",
     likes: 312,
     comments: 91,
     imageUrl:
@@ -83,7 +81,7 @@ export const postsData = [
     description:
       "Exploring the complex relationship between technology use and psychological well-being in modern society...",
     author: "Dr. James Wilson",
-    timeAgo: "5d ago",
+    createdAt: "2025-07-24T10:23:45.123Z",
     likes: 267,
     comments: 118,
     imageUrl:
@@ -96,7 +94,7 @@ export const postsData = [
     description:
       "New battery technologies promise to solve the intermittency challenge of solar and wind power generation...",
     author: "Energy Expert",
-    timeAgo: "6d ago",
+    createdAt: "2025-07-25T10:22:45.123Z",
     likes: 184,
     comments: 67,
     imageUrl:
@@ -109,7 +107,7 @@ export const postsData = [
     description:
       "Indoor agriculture is revolutionizing food production in cities, offering fresh produce year-round with minimal water...",
     author: "Urban Farmer",
-    timeAgo: "1w ago",
+    createdAt: "2025-06-26T10:21:45.123Z",
     likes: 95,
     comments: 29,
     imageUrl:
@@ -122,7 +120,7 @@ export const postsData = [
     description:
       "Analyzing market patterns and regulatory developments that could shape the future of digital currencies...",
     author: "Crypto Analyst",
-    timeAgo: "1w ago",
+    createdAt: "2025-07-26T10:23:45.123Z",
     likes: 143,
     comments: 85,
     imageUrl:

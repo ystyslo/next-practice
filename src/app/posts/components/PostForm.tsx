@@ -17,19 +17,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LogOut } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthUserStore";
+import { createPost } from "@/lib/services/postsAPI";
 
 const formSchema = z.object({
   title: z
     .string()
-    .min(5, "Тема поста має містити щонайменше 5 символів")
-    .max(100, "Тема поста не може бути довше за 100 символів"),
+    .min(5, "Post title must be at least 5 characters long")
+    .max(100, "Post title cannot be longer than 100 characters"),
   content: z
     .string()
-    .min(10, "Текст поста має містити щонайменше 10 символів")
-    .max(2000, "Текст поста не може бути довше за 2000 символів"),
+    .min(10, "Post content must be at least 10 characters long")
+    .max(2000, "Post content cannot be longer than 2000 characters"),
 });
 
-export default function CreatePostForm({ username = "John Doe" }) {
+export default function CreatePostForm() {
   const { user, clearUser } = useAuthStore();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,18 +40,36 @@ export default function CreatePostForm({ username = "John Doe" }) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const postData = {
-      ...values,
-      author: username,
-      createdAt: new Date().toISOString(),
-    };
-    console.log(postData);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+      alert("User not logged in");
+      return;
+    }
+    try {
+      console.log("Submitting post with data:", {
+        title: values.title,
+        description: values.content,
+        authorId: user.id,
+      });
+      await createPost({
+        title: values.title,
+        description: values.content,
+        authorId: user.id,
+      });
+      form.reset();
+      alert("Post successfully created");
+    } catch (error) {
+      if (error instanceof Error) {
+        form.setError("title", { message: error.message });
+      } else {
+        form.setError("title", { message: "Unknown error" });
+      }
+    }
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <div className="bg-muted rounded-xl p-6 shadow-md">
+    <div className="w-full max-w-xl mx-auto">
+      <div className="bg-white/90 w-[342px] rounded-xl p-6 shadow-md">
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-2xl font-bold text-foreground">
@@ -116,7 +135,7 @@ export default function CreatePostForm({ username = "John Doe" }) {
                   <FormControl>
                     <Textarea
                       placeholder="Share your thoughts..."
-                      className="min-h-[150px] text-base resize-none"
+                      className="max-w-full w-full min-w-0 resize-none text-base"
                       {...field}
                     />
                   </FormControl>
