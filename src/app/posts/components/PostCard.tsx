@@ -2,14 +2,20 @@ import React, { useState } from "react";
 import { CircleUserRound, Heart, MessageCircle } from "lucide-react";
 import { Post } from "@/types/Post";
 import { getTimeAgo } from "@/utils/getTimeAgo";
+import { useAuthStore } from "@/store/useAuthUserStore";
+import { usePostsStore } from "@/store/usePostsStore";
+import { DeleteBtn } from "@/components/ui/Buttons/DeleteBtn";
+import { PostDialog } from "./PostDialog";
 
 type PostCardProps = {
   post: Post;
 };
 
 export const PostCard: React.FC<PostCardProps> = ({ post }) => {
+  const { user } = useAuthStore();
+  const deletePost = usePostsStore((state) => state.deleteAndRefetchPost);
   const [isExpanded, setIsExpanded] = useState(false);
-  const maxLength = 150;
+  const maxLength = 137;
   const shouldShowReadMore =
     post.description && post.description.length > maxLength;
 
@@ -17,6 +23,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
     shouldShowReadMore && !isExpanded
       ? post.description.substring(0, maxLength) + "..."
       : post.description;
+
+  const isUserAuthor = user ? post.authorId === +user.id : false;
+  const commentCount = post._count?.comments ?? 0;
 
   return (
     <div
@@ -33,7 +42,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-900">
-                {post.author}
+                {post.author.username}
               </span>
               <span className="text-sm text-gray-500 whitespace-nowrap">
                 {getTimeAgo(post.createdAt)}
@@ -75,17 +84,19 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
             <div className="flex items-center gap-1">
               <MessageCircle className="w-4 h-4 text-gray-500" />
-              {post.comments > 0 && (
+              {commentCount > 0 && (
                 <span className="text-sm font-medium text-gray-700">
-                  {post.comments}
+                  {commentCount}
                 </span>
               )}
             </div>
           </div>
-
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-            Comment
-          </button>
+          <div className="flex gap-4">
+            {user && isUserAuthor && (
+              <DeleteBtn onClick={() => deletePost(post.id)} />
+            )}
+            <PostDialog post={post} />
+          </div>
         </div>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import { PostData } from "@/types/PostData";
+
 export async function getPosts() {
   const res = await fetch("/api/posts", {
     method: "GET",
@@ -12,11 +14,7 @@ export async function getPosts() {
   return res.json();
 }
 
-export async function createPost(data: {
-  title: string;
-  description: string;
-  authorId: string | undefined;
-}) {
+export async function createPost(data: PostData) {
   const res = await fetch("/api/posts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -26,6 +24,19 @@ export async function createPost(data: {
   if (!res.ok) {
     const errorData = await res.json();
     throw new Error(errorData.error || "Could not create a post");
+  }
+
+  return res.json();
+}
+
+export async function deletePost(id: string) {
+  const res = await fetch(`/api/posts/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error?.message || "Failed to delete post");
   }
 
   return res.json();

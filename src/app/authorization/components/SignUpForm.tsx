@@ -68,7 +68,7 @@ export default function SignUpForm() {
       } else if (err instanceof Error) {
         form.setError("username", { message: err.message });
       } else {
-        form.setError("username", { message: "Щось пішло не так" });
+        form.setError("username", { message: "Something went wrong" });
       }
     }
   }
@@ -86,7 +86,7 @@ export default function SignUpForm() {
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="John Doe" autoComplete="on" {...field} />
               </FormControl>
               <FormDescription>
                 This is your public display name.
@@ -102,7 +102,11 @@ export default function SignUpForm() {
             <FormItem>
               <FormLabel>E-mail</FormLabel>
               <FormControl>
-                <Input placeholder="john.doe@gmail.com" {...field} />
+                <Input
+                  placeholder="john.doe@gmail.com"
+                  autoComplete="on"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -113,14 +117,16 @@ export default function SignUpForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel htmlFor="password">Password</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
+                    id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     {...field}
                     className="pr-10"
+                    autoComplete="off"
                   />
                   <button
                     type="button"

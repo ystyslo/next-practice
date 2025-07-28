@@ -1,24 +1,18 @@
 "use client";
 
-import { getPosts } from "@/lib/services/postsAPI";
 import { PostCard } from "./PostCard";
 import { Post } from "@/types/Post";
-import { useEffect, useState } from "react";
 import { Inbox } from "lucide-react";
+import { usePostsStore } from "@/store/usePostsStore";
+import { useEffect } from "react";
 
 export default function PostsList() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const posts = usePostsStore((state) => state.posts);
+  const fetchPosts = usePostsStore((state) => state.fetchPosts);
+
   useEffect(() => {
-    async function fetchPosts() {
-      try {
-        const postsFromServer = await getPosts();
-        setPosts(postsFromServer);
-      } catch (error) {
-        console.error("Failed to fetch posts", error);
-      }
-    }
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
 
   return (
     <>

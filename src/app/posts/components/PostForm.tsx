@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LogOut } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthUserStore";
-import { createPost } from "@/lib/services/postsAPI";
+import { usePostsStore } from "@/store/usePostsStore";
 
 const formSchema = z.object({
   title: z
@@ -46,15 +46,11 @@ export default function CreatePostForm() {
       return;
     }
     try {
-      console.log("Submitting post with data:", {
+      await usePostsStore.getState().createAndRefetchPost({
         title: values.title,
         description: values.content,
-        authorId: user.id,
-      });
-      await createPost({
-        title: values.title,
-        description: values.content,
-        authorId: user.id,
+        authorId: +user.id,
+        author: user,
       });
       form.reset();
       alert("Post successfully created");
@@ -91,9 +87,9 @@ export default function CreatePostForm() {
         </div>
 
         <div className="mb-6">
-          <label className="text-sm font-medium text-foreground mb-2 block">
+          <span className="text-sm font-medium text-foreground mb-2 block">
             Posting as
-          </label>
+          </span>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
               <span className="text-sm font-semibold text-white">
@@ -107,7 +103,11 @@ export default function CreatePostForm() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            name="PostForm"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
             <FormField
               control={form.control}
               name="title"

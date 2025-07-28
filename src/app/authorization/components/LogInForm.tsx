@@ -66,7 +66,11 @@ export default function LogInForm() {
             <FormItem>
               <FormLabel>E-mail</FormLabel>
               <FormControl>
-                <Input placeholder="john.doe@gmail.com" {...field} />
+                <Input
+                  placeholder="john.doe@gmail.com"
+                  autoComplete="on"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -77,14 +81,16 @@ export default function LogInForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel htmlFor="password">Password</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
+                    id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     {...field}
                     className="pr-10"
+                    autoComplete="off"
                   />
                   <button
                     type="button"
