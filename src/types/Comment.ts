@@ -6,7 +6,7 @@ export interface Comment {
   text: string;
   createdAt: Date;
   author: User;
-  authorId: number;
+  authorId: string;
   post: Post;
   postId: string;
 }

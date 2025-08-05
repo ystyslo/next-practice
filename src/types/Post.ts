@@ -5,11 +5,11 @@ export interface Post {
   title: string;
   description: string;
   author: User;
-  authorId: number;
+  authorId: string;
   createdAt: Date;
   likes: number;
   comments: Comment[];
-  _count?: {
+  _count: {
     comments: number;
   };
 }

@@ -6,16 +6,23 @@ import {
   deleteComment,
 } from "@/lib/services/commentsAPI";
 import { CommentData } from "@/types/CommentData";
+import { toast } from "sonner";
 
 interface CommentState {
   commentsByPostId: Record<string, Comment[]>;
   fetchComments: (postId: string) => Promise<void>;
+  isLoading?: boolean;
   createAndRefetchComment: (data: CommentData) => Promise<void>;
+  isCreating?: boolean;
   deleteAndRefetchComment: (commentId: string, postId: string) => Promise<void>;
+  isDeleting?: boolean;
 }
 
 export const useCommentsStore = create<CommentState>((set) => ({
   commentsByPostId: {},
+  isLoading: true,
+  isCreating: false,
+  isDeleting: false,
 
   fetchComments: async (postId) => {
     try {
@@ -28,6 +35,8 @@ export const useCommentsStore = create<CommentState>((set) => ({
       }));
     } catch (error) {
       console.error("Failed to fetch comments", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
@@ -41,8 +50,9 @@ export const useCommentsStore = create<CommentState>((set) => ({
           [data.postId]: updated,
         },
       }));
-    } catch (error) {
-      console.error("Failed to create and refetch comments", error);
+      toast.success("Comment added successfully!");
+    } catch {
+      toast.error("Something went wrong");
     }
   },
 
@@ -50,9 +60,15 @@ export const useCommentsStore = create<CommentState>((set) => ({
     try {
       await deleteComment(commentId);
       const updated = await getComments(postId);
-      set({ commentsByPostId: updated });
-    } catch (error) {
-      console.error("Failed to delete and refetch comments", error);
+      set((state) => ({
+        commentsByPostId: {
+          ...state.commentsByPostId,
+          [postId]: updated,
+        },
+      }));
+      toast.success("Comment deleted successfully!");
+    } catch {
+      toast.error("Something went wrong");
     }
   },
 }));

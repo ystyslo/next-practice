@@ -18,21 +18,26 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/store/useAuthUserStore";
 import { useRouter } from "next/navigation";
-import { loginUser } from "@/lib/services/userAPI";
+import { signIn } from "next-auth/react";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  email: z.email("Введіть коректний email"),
+  email: z.email("Invalid email format"),
   password: z
     .string()
-    .min(8, "Пароль має містити щонайменше 8 символів")
-    .regex(/[A-Z]/, "Пароль має містити хоча б одну велику літеру")
-    .regex(/[a-z]/, "Пароль має містити хоча б одну малу літеру")
-    .regex(/[0-9]/, "Пароль має містити хоча б одну цифру"),
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one digit")
+    .regex(
+      /^[A-Za-z0-9]*$/,
+      "Password must contain only Latin letters and digits"
+    ),
 });
 
 export default function LogInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const { setUser, setHasAccount } = useAuthStore();
+  const { setHasAccount } = useAuthStore();
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,12 +48,17 @@ export default function LogInForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const user = await loginUser(values);
-      alert("Login successful");
-      setUser(user);
+    const res = await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      redirect: false,
+    });
+
+    if (res?.ok) {
+      toast.success("You logged in successfully!");
+      console.log("AUTH_SECRET:", process.env.AUTH_SECRET);
       router.push("/posts");
-    } catch {
+    } else {
       form.setError("email", { message: "Incorrect e-mail or password" });
     }
   }

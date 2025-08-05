@@ -1,5 +1,6 @@
 "use client";
 
+import { User2Icon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -22,11 +23,11 @@ export default function NavBar() {
   const links = [
     { href: "/", label: "Home" },
     { href: "/posts", label: "Posts" },
-    { href: "/contact", label: "Contact" },
     { href: "/about", label: "About" },
+    { href: "/account", label: <User2Icon size={20} /> },
   ];
   return (
-    <div className="flex justify-between items-center w-2xs ml-5">
+    <div className="hidden md:flex justify-between items-center w-2xs ml-5">
       {links.map(({ href, label }) => {
         const isActive = mounted && pathname === href;
         return (

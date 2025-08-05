@@ -16,8 +16,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LogOut } from "lucide-react";
-import { useAuthStore } from "@/store/useAuthUserStore";
 import { usePostsStore } from "@/store/usePostsStore";
+import Loader from "@/components/ui/Loader";
+import { signOut, useSession } from "next-auth/react";
+import SkeletonPostForm from "./SkeletonPostForm";
 
 const formSchema = z.object({
   title: z
@@ -30,8 +32,10 @@ const formSchema = z.object({
     .max(2000, "Post content cannot be longer than 2000 characters"),
 });
 
-export default function CreatePostForm() {
-  const { user, clearUser } = useAuthStore();
+export default function PostForm() {
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const { createAndRefetchPost, isCreating } = usePostsStore();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,19 +45,17 @@ export default function CreatePostForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) {
+    if (!user?.id) {
       alert("User not logged in");
       return;
     }
     try {
-      await usePostsStore.getState().createAndRefetchPost({
+      await createAndRefetchPost({
         title: values.title,
         description: values.content,
-        authorId: +user.id,
-        author: user,
+        authorId: user.id,
       });
       form.reset();
-      alert("Post successfully created");
     } catch (error) {
       if (error instanceof Error) {
         form.setError("title", { message: error.message });
@@ -63,9 +65,13 @@ export default function CreatePostForm() {
     }
   }
 
+  if (status === "loading") {
+    return <SkeletonPostForm />;
+  }
+
   return (
-    <div className="w-full max-w-xl mx-auto">
-      <div className="bg-white/90 w-[342px] rounded-xl p-6 shadow-md">
+    <div className="flex justify-center mx-auto">
+      <div className="bg-white/90 w-full max-w-[518px] md:max-w-[342px] rounded-xl p-6 shadow-md">
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-2xl font-bold text-foreground">
@@ -74,7 +80,7 @@ export default function CreatePostForm() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => clearUser()}
+              onClick={() => signOut()}
               className="text-muted-foreground hover:text-foreground"
             >
               <LogOut className="w-4 h-4 mr-1" />
@@ -148,14 +154,16 @@ export default function CreatePostForm() {
               <Button
                 type="submit"
                 className="bg-[var(--selection)] hover:bg-blue-900 px-8"
+                disabled={isCreating}
               >
-                Publish
+                {isCreating ? <Loader /> : "Publish"}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => form.reset()}
                 className="px-8"
+                disabled={isCreating}
               >
                 Clear
               </Button>

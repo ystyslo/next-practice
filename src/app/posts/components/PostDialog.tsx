@@ -6,54 +6,55 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Post } from "@/types/Post";
 import { getTimeAgo } from "@/utils/getTimeAgo";
 import { CircleUserRound } from "lucide-react";
 import { useCommentsStore } from "@/store/useCommentsStore";
 import { CommentData } from "@/types/CommentData";
-import { useAuthStore } from "@/store/useAuthUserStore";
-import { DialogDescription } from "@radix-ui/react-dialog";
+import { useSession } from "next-auth/react";
+import PostDropdown from "./PostDropdown";
+import CommentsList from "./CommentsList";
+import { toast } from "sonner";
 
 type PostDialogProps = {
   post: Post;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-export function PostDialog({ post }: PostDialogProps) {
-  const { user } = useAuthStore();
-  const { fetchComments, createAndRefetchComment } = useCommentsStore();
+export function PostDialog({ post, open, onOpenChange }: PostDialogProps) {
+  const { data: session } = useSession();
+  const user = session?.user;
+  const { fetchComments, createAndRefetchComment, isLoading } =
+    useCommentsStore();
   const comments = useCommentsStore((state) => state.commentsByPostId[post.id]);
-  const [comment, setComment] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
+  const [commentText, setCommentText] = useState("");
 
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       fetchComments(post.id);
-      console.log("comments are fetching");
     }
-  }, [isOpen, fetchComments, post.id]);
+  }, [open, fetchComments, post.id]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      alert("You must be logged in to comment");
+    if (!user?.id) {
+      toast.warning("You must be logged in to comment");
       return;
     }
     const newComment: CommentData = {
-      text: comment,
+      text: commentText,
       postId: post.id,
-      authorId: +user.id,
+      authorId: user.id,
     };
     createAndRefetchComment(newComment);
-    setComment("");
+    setCommentText("");
   };
 
   return (
-    <Dialog onOpenChange={setIsOpen}>
-      <DialogTrigger className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-        Comment
-      </DialogTrigger>
+    <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -76,7 +77,10 @@ export function PostDialog({ post }: PostDialogProps) {
           <DialogDescription />
         </DialogHeader>
         <section className="space-y-2">
-          <h2 className="text-lg font-semibold">{post.title}</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold">{post.title}</h2>
+            <PostDropdown post={post} />
+          </div>
           <p className="text-sm text-gray-800 whitespace-pre-line">
             {post.description}
           </p>
@@ -86,37 +90,29 @@ export function PostDialog({ post }: PostDialogProps) {
           <h3 className="text-sm font-medium text-gray-700 mb-1">
             Latest comments:
           </h3>
-          <div className="max-h-40 overflow-y-auto space-y-2 pr-1">
-            {comments && comments.length > 0 ? (
-              comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="p-2 bg-gray-100 rounded-md text-sm text-gray-800"
-                >
-                  <div className="flex justify-between font-semibold text-xs text-gray-600 mb-1">
-                    <span>{comment.author.username}</span>
-                    <span>{getTimeAgo(comment.createdAt)}</span>
-                  </div>
-                  <div>{comment.text}</div>
-                </div>
-              ))
-            ) : (
-              <div>No comments yet</div>
-            )}
-          </div>
+          {isLoading ? (
+            <div className="w-full h-10 flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+            </div>
+          ) : null}
+          <CommentsList comments={comments} />
         </section>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <Textarea
             name="comment"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
             placeholder="Write your comment..."
-            className="min-h-[100px]"
+            className="min-h-[80px] break-words"
             autoComplete="off"
           />
           <div className="flex justify-end">
-            <Button type="submit" disabled={!comment.trim()}>
+            <Button
+              variant="blueBtn"
+              type="submit"
+              disabled={!commentText.trim()}
+            >
               Submit
             </Button>
           </div>

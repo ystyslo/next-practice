@@ -18,27 +18,30 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/store/useAuthUserStore";
-import { useRouter } from "next/navigation";
 import { registerUser } from "@/lib/services/userAPI";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   username: z
     .string()
-    .min(2, "Імʼя користувача має містити щонайменше 2 символи")
-    .max(20, "Імʼя користувача не може бути довше за 20 символів"),
-  email: z.email("Неправильний формат email"),
+    .min(2, "Username must be at least 2 characters long")
+    .max(20, "Username must be no longer than 20 characters"),
+  email: z.email("Invalid email format"),
   password: z
     .string()
-    .min(8, "Пароль має містити щонайменше 8 символів")
-    .regex(/[A-Z]/, "Пароль має містити хоча б одну велику літеру")
-    .regex(/[a-z]/, "Пароль має містити хоча б одну малу літеру")
-    .regex(/[0-9]/, "Пароль має містити хоча б одну цифру"),
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one digit")
+    .regex(
+      /^[A-Za-z0-9]*$/,
+      "Password must contain only Latin letters and digits"
+    ),
 });
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const { setUser, setHasAccount } = useAuthStore();
-  const router = useRouter();
+  const { setHasAccount } = useAuthStore();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,10 +53,9 @@ export default function SignUpForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const user = await registerUser(values);
-      alert("Registration successful");
-      setUser(user);
-      router.push("/posts");
+      await registerUser(values);
+      setHasAccount(true);
+      toast.success("Registration successful");
     } catch (err) {
       if (
         err &&
